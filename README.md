@@ -1,6 +1,6 @@
 # FlexSkyBridge
 
-Plugin SoapySDR para Windows que conecta [SkyRoof](https://www.skyroofproject.com/) con el transceptor **FlexRadio 6600** para seguimiento satelital con corrección Doppler automática.
+Plugin SoapySDR para Windows que conecta [SkyRoof]([https://www.skyroofproject.com/](https://ve3nea.github.io/SkyRoof/)) con el transceptor **FlexRadio 6600** para seguimiento satelital con corrección Doppler automática. Hecho con la ayuda de Claude Code.
 
 ![ISS pass on SkyRoof waterfall](docs/screenshot.png)
 
@@ -8,7 +8,7 @@ Plugin SoapySDR para Windows que conecta [SkyRoof](https://www.skyroofproject.co
 
 - Habla directamente con el FlexRadio 6600 vía protocolo SmartSDR (TCP/4992) — sin necesidad de SmartSDR DAX ni smartsdr-iqtransfer
 - Recibe IQ a **192.000 Hz** vía UDP directo (paquetes VITA-49), sin latencia de driver de audio
-- Corrección Doppler en tiempo real via rigctld integrado (puerto 4532)
+- Corrección Doppler en tiempo real usando CAT via rigctld integrado (puerto 4532)
 - Mueve automáticamente el slice y el panadapter de SmartSDR al cambiar de frecuencia
 - Compatible con AetherSDR u otros clientes SmartSDR funcionando simultáneamente
 
@@ -26,8 +26,9 @@ SkyRoof → SoapySDR API → FlexSkyBridge.dll ←→ FlexRadio 6600
 - Windows 10/11 x64
 - [PothosSDR](https://github.com/pothosware/PothosSDR/releases) (incluye SoapySDR)
 - FlexRadio 6600 con SmartSDR v1.4 o superior
-- SkyRoof 1.33 o superior (u otro cliente SoapySDR)
-- CMake 3.15+ y Visual Studio 2019/2022
+- SkyRoof 1.33 o superior 
+- CMake 3.15+
+- Visual Studio 18/2026
 
 ## Compilación
 
@@ -39,7 +40,7 @@ cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
 ```
 
-El DLL resultante queda en `build/Release/FlexSkyBridge.dll`.
+La DLL resultante queda en `build/Release/FlexSkyBridge.dll`.
 
 ## Instalación
 
