@@ -32,7 +32,7 @@ SkyRoof → SoapySDR API → FlexSkyBridge.dll ←→ FlexRadio 6600
 ## Compilación
 
 ```powershell
-git clone https://github.com/TU_USUARIO/FlexSkyBridge.git
+git clone https://github.com/ea5wa/FlexSkyBridge.git
 cd FlexSkyBridge
 
 cmake -B build -DCMAKE_BUILD_TYPE=Release
@@ -103,4 +103,4 @@ MIT — ver [LICENSE](LICENSE)
 
 ## Autor
 
-EA5WA — [FlexEA5WA](https://github.com/TU_USUARIO)
+EA5WA — [@ea5wa](https://github.com/ea5wa)
