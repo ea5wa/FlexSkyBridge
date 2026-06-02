@@ -20,13 +20,17 @@ static void dbg(const std::string& msg) {
 
 FlexDevice::FlexDevice(const SoapySDR::Kwargs& args) {
     dbg("=== Constructor llamado ===");
-    radioIP_     = (args.count("radio")    ? args.at("radio")    : "192.168.0.208");
-    daxChannel_  = (args.count("channel")  ? std::stoi(args.at("channel"))  : 1);
-    udpPort_     = (args.count("udpport")  ? std::stoi(args.at("udpport"))  : 7891);
-    rigctldPort_ = (args.count("rigctld")  ? std::stoi(args.at("rigctld"))  : 4532);
+    radioIP_     = (args.count("radio")       ? args.at("radio")       : "192.168.0.208");
+    daxChannel_  = (args.count("channel")     ? std::stoi(args.at("channel"))  : 1);
+    udpPort_     = (args.count("udpport")     ? std::stoi(args.at("udpport"))  : 7891);
+    rigctldPort_ = (args.count("rigctld")     ? std::stoi(args.at("rigctld"))  : 4532);
+    if (args.count("rotctldexe"))  rotctldExe_  = args.at("rotctldexe");
+    if (args.count("rotctldargs")) rotctldArgs_ = args.at("rotctldargs");
     dbg("radioIP=" + radioIP_ + " canal=" + std::to_string(daxChannel_) +
         " udpPort=" + std::to_string(udpPort_) +
-        " rigctldPort=" + std::to_string(rigctldPort_));
+        " rigctldPort=" + std::to_string(rigctldPort_) +
+        " rotctldExe=" + rotctldExe_ +
+        " rotctldArgs=" + rotctldArgs_);
 
     smartsdr_    = std::make_unique<SmartSDRClient>();
     daxReceiver_ = std::make_unique<DaxIQReceiver>();
@@ -156,6 +160,46 @@ SoapySDR::RangeList FlexDevice::getBandwidthRange(const int dir,
     return { SoapySDR::Range(48000.0, 192000.0) };
 }
 
+// ── rotctld (proceso externo hamlib) ─────────────────────────────────────────
+void FlexDevice::startRotctld() {
+    if (rotctldExe_.empty()) return;
+
+    // Matar instancia previa si quedara huérfana
+    stopRotctld();
+
+    std::string cmdLine = "\"" + rotctldExe_ + "\" " + rotctldArgs_;
+    dbg("Arrancando rotctld: " + cmdLine);
+
+    STARTUPINFOA si{};
+    si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;   // sin ventana visible
+
+    if (!CreateProcessA(nullptr,
+                        const_cast<char*>(cmdLine.c_str()),
+                        nullptr, nullptr, FALSE,
+                        CREATE_NEW_PROCESS_GROUP,
+                        nullptr, nullptr,
+                        &si, &rotctldProc_)) {
+        dbg("WARN: no se pudo arrancar rotctld (error " +
+            std::to_string(GetLastError()) + ")");
+        rotctldProc_ = { nullptr, nullptr, 0, 0 };
+    } else {
+        dbg("rotctld arrancado PID=" + std::to_string(rotctldProc_.dwProcessId));
+    }
+}
+
+void FlexDevice::stopRotctld() {
+    if (rotctldProc_.hProcess == nullptr) return;
+    dbg("Deteniendo rotctld PID=" + std::to_string(rotctldProc_.dwProcessId));
+    TerminateProcess(rotctldProc_.hProcess, 0);
+    WaitForSingleObject(rotctldProc_.hProcess, 2000);
+    CloseHandle(rotctldProc_.hProcess);
+    CloseHandle(rotctldProc_.hThread);
+    rotctldProc_ = { nullptr, nullptr, 0, 0 };
+    dbg("rotctld detenido");
+}
+
 // ── Streaming ─────────────────────────────────────────────────────────────────
 SoapySDR::Stream* FlexDevice::setupStream(const int dir,
                                            const std::string& format,
@@ -194,6 +238,9 @@ int FlexDevice::activateStream(SoapySDR::Stream* stream,
             dbg("Conectado OK. Handle=0x" + hs.str());
         }
 
+        // Arrancar rotctld (hamlib) para control de rotor
+        startRotctld();
+
         // Arrancar servidor rigctld para recibir frecuencias Doppler de SkyRoof
         dbg("Arrancando rigctld en puerto " + std::to_string(rigctldPort_));
         rigctld_->start(rigctldPort_, [this](double freqHz) {
@@ -230,6 +277,7 @@ int FlexDevice::deactivateStream(SoapySDR::Stream* stream,
                                   const long long timeNs) {
     dbg("deactivateStream llamado");
     if (!streaming_.exchange(false)) return 0;
+    stopRotctld();
     rigctld_->stop();
     daxReceiver_->stop();
     if (smartsdr_->isConnected()) smartsdr_->disconnect();

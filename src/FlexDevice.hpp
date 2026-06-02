@@ -5,6 +5,9 @@
 #include <string>
 #include <atomic>
 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 #include "SmartSDRClient.hpp"
 #include "DaxIQReceiver.hpp"
 #include "RigCtldServer.hpp"
@@ -104,6 +107,9 @@ public:
     bool getDCOffsetMode(const int dir, const size_t ch) const override { return true; }
 
 private:
+    void startRotctld();
+    void stopRotctld();
+
     std::string radioIP_;
     int         daxChannel_{ 1 };
     uint16_t    udpPort_   { 7891 };
@@ -118,4 +124,9 @@ private:
 
     uint16_t          rigctldPort_{ 4532 };
     std::atomic<bool> streaming_{ false };
+
+    // ── rotctld (control de rotor via hamlib) ─────────────────────────────────
+    std::string        rotctldExe_ { "C:\\hamlib\\bin\\rotctld.exe" };
+    std::string        rotctldArgs_{ "-m 3 -r 127.0.0.1:4533" };
+    PROCESS_INFORMATION rotctldProc_{ nullptr, nullptr, 0, 0 };
 };
