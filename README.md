@@ -2,7 +2,8 @@
 
 Plugin SoapySDR para Windows que conecta [SkyRoof]([https://www.skyroofproject.com/](https://ve3nea.github.io/SkyRoof/)) con el transceptor **FlexRadio 6600** para seguimiento satelital con corrección Doppler automática. Hecho con la ayuda de Claude Code.
 
-![ISS pass on SkyRoof waterfall](docs/screenshot.png)
+<img width="1142" height="677" alt="screenshot" src="https://github.com/user-attachments/assets/14a70581-7b19-4978-a5a0-d79159751b89" />
+
 
 ## Características
 
