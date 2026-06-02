@@ -1,0 +1,50 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "CMake: Configure",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-G", "Visual Studio 18 2026",
+                "-A", "x64",
+                "-DCMAKE_PREFIX_PATH=C:/Program Files/PothosSDR",
+                "-S", "${workspaceFolder}",
+                "-B", "${workspaceFolder}/build"
+            ],
+            "group": "build",
+            "presentation": { "panel": "shared", "reveal": "always" }
+        },
+        {
+            "label": "CMake: Build Release",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build", "${workspaceFolder}/build",
+                "--config", "Release"
+            ],
+            "group": { "kind": "build", "isDefault": true },
+            "dependsOn": "CMake: Configure",
+            "presentation": { "panel": "shared", "reveal": "always" }
+        },
+        {
+            "label": "Install plugin (requiere admin)",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--install", "${workspaceFolder}/build",
+                "--config", "Release"
+            ],
+            "group": "build",
+            "presentation": { "panel": "shared", "reveal": "always" }
+        },
+        {
+            "label": "Test: SoapySDRUtil --find",
+            "type": "shell",
+            "command": "\"C:/Program Files/PothosSDR/bin/SoapySDRUtil.exe\"",
+            "args": ["--find=driver=FlexSkyBridge"],
+            "group": "test",
+            "presentation": { "panel": "shared", "reveal": "always" }
+        }
+    ]
+}

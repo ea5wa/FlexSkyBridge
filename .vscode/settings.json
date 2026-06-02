@@ -1,0 +1,16 @@
+{
+    "cmake.generator": "Visual Studio 18 2026",
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.configureArgs": [
+        "-A", "x64",
+        "-DCMAKE_PREFIX_PATH=C:/Program Files/PothosSDR"
+    ],
+    "cmake.buildArgs": ["--config", "Release"],
+    "C_Cpp.default.compilerPath": "cl.exe",
+    "C_Cpp.default.intelliSenseMode": "windows-msvc-x64",
+    "C_Cpp.default.includePath": [
+        "${workspaceFolder}/src",
+        "C:/Program Files/PothosSDR/include"
+    ],
+    "C_Cpp.default.cppStandard": "c++17"
+}

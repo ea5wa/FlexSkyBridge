@@ -1,0 +1,21 @@
+# Directorios a excluir
+build/
+.claude/
+FlexSkyBridge/
+
+# Logs de depuración
+*.log
+C:/RADIO/
+
+# Visual Studio / CMake
+.vs/
+*.user
+*.suo
+CMakeSettings.json
+
+# Binarios compilados
+*.dll
+*.lib
+*.exp
+*.pdb
+*.obj
