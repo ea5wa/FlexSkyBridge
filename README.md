@@ -79,8 +79,7 @@ Rutas conocidas según versión de SkyRoof:
 
 | Versión SkyRoof | Ruta del módulo |
 |----------------|-----------------|
-| 1.33 | `C:\RADIO\SkyRoof\lib\SoapySDR\modules0.8\` |
-| 1.34 | `C:\RADIO\SkyRoof\SkyRoof\lib\SoapySDR\modules0.8\` |
+| 1.34 | `C:\RADIO\SkyRoof\lib\SoapySDR\modules0.8\` |
 
 ### Verificación
 
