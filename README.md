@@ -35,7 +35,7 @@ SkyRoof ──SoapySDR──►  rigctld :4532   →  slice tune TCP/4992 ──
 - FlexRadio 6600 con SmartSDR v1.4 o superior
 - [Hamlib](https://hamlib.github.io/) instalado en `C:\hamlib\` (para control de rotor)
 - [PstRotator](http://www.qsl.net/yo3dmu/index_Page346.htm) configurado como servidor rotctld en puerto 4533
-- SkyRoof 1.33 o superior
+- SkyRoof 1.33 o superior (ver sección [Instalación con SkyRoof](#instalación-con-skyroof--ruta-correcta-del-módulo))
 - CMake 3.15+ y Visual Studio 2019/2022
 
 ## Compilación
@@ -52,23 +52,46 @@ El DLL resultante queda en `build/Release/FlexSkyBridge.dll`.
 
 ## Instalación
 
-Copia el DLL a la carpeta de módulos de SoapySDR:
+SkyRoof **no usa** el directorio estándar de PothosSDR para cargar plugins SoapySDR. Usa su propia carpeta interna. Debes copiar la DLL en **dos sitios**:
 
-```powershell
-cmake --install build --config Release
-```
-
-O manualmente:
+### 1. Módulos de PothosSDR (para que SoapySDRUtil lo detecte)
 
 ```powershell
 copy build\Release\FlexSkyBridge.dll "C:\Program Files\PothosSDR\lib\SoapySDR\modules0.8\"
 ```
 
-Verifica que SoapySDR lo detecta:
+### 2. Módulos internos de SkyRoof (imprescindible para que funcione)
+
+La ruta depende de dónde esté instalado SkyRoof. Encuéntrala abriendo el log de SkyRoof (`%APPDATA%\Afreet\Products\SkyRoof\Logs\SkyRoof_YYYYMMDD.txt`) y buscando la línea:
+
+```
+Setting SoapySDR plugin path: C:\...
+```
+
+Copia la DLL a esa ruta:
 
 ```powershell
-SoapySDRUtil --probe="driver=flexskybridge"
+# Ajusta según lo que indique el log de SkyRoof
+copy build\Release\FlexSkyBridge.dll "C:\RADIO\SkyRoof\SkyRoof\lib\SoapySDR\modules0.8\"
 ```
+
+Rutas conocidas según versión de SkyRoof:
+
+| Versión SkyRoof | Ruta del módulo |
+|----------------|-----------------|
+| 1.33 | `C:\RADIO\SkyRoof\lib\SoapySDR\modules0.8\` |
+| 1.34 | `C:\RADIO\SkyRoof\SkyRoof\lib\SoapySDR\modules0.8\` |
+
+### Verificación
+
+Comprueba que SkyRoof carga el plugin correctamente en su log:
+
+```
+SDR started: Flex 6600 via FlexSkyBridge
+[SOAPY_SDR_INFO]: [FlexSkyBridge] Stream activado
+```
+
+Si aparece `Device Flex 6600 via FlexSkyBridge is no longer available`, la DLL no está en la carpeta correcta de SkyRoof.
 
 ## Configuración en SkyRoof
 
@@ -115,6 +138,7 @@ Si necesitas apuntar a un PstRotator en otra máquina, pasa el parámetro en el 
 - No es necesario activar el DAX IQ 1 en SmartSDR DAX — el plugin crea su propio stream independiente
 - El plugin convive con AetherSDR / SmartSDR-Win abierto simultáneamente
 - El log de depuración se escribe en `C:\RADIO\FlexSkyBridge_debug.log`
+
 
 ## Arquitectura interna
 
