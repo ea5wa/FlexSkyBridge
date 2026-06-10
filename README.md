@@ -97,7 +97,9 @@ Si aparece `Device Flex 6600 via FlexSkyBridge is no longer available`, la DLL n
 En SkyRoof, selecciona como SDR device:
 
 ```
-driver=flexskybridge,radio=192.168.0.208,channel=1,udpport=7891,rigctld=4532
+<img width="981" height="789" alt="image" src="https://github.com/user-attachments/assets/a6c36d86-c654-4750-8d9a-6c0b857cb4a0" />
+
+
 ```
 
 | Parámetro | Descripción | Valor por defecto |
