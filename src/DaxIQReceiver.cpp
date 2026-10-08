@@ -30,9 +30,10 @@ DaxIQReceiver::~DaxIQReceiver() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-void DaxIQReceiver::start(uint16_t udpPort, const std::string&) {
+void DaxIQReceiver::start(uint16_t udpPort, const std::string& radioIP) {
     if (running_.load()) return;
     udpPort_       = udpPort;
+    radioIP_       = radioIP;
     running_       = true;
     captureThread_ = std::thread(&DaxIQReceiver::captureLoop, this);
     dbgDax("DaxIQReceiver UDP: arrancando en puerto " + std::to_string(udpPort));
@@ -92,6 +93,20 @@ void DaxIQReceiver::captureLoop() {
     }
 
     dbgDax("UDP: bind OK en puerto " + std::to_string(udpPort_));
+
+    // Probe UDP: abre camino de vuelta en NAT/firewall enviando un paquete
+    // desde nuestro puerto al radio. El radio no necesita responder — basta
+    // con que el estado NAT quede abierto para el tráfico entrante.
+    if (!radioIP_.empty()) {
+        sockaddr_in probe{};
+        probe.sin_family = AF_INET;
+        probe.sin_port   = htons(udpPort_);
+        inet_pton(AF_INET, radioIP_.c_str(), &probe.sin_addr);
+        const char probeBuf[] = "\x00";
+        sendto(sock, probeBuf, 1, 0,
+               reinterpret_cast<sockaddr*>(&probe), sizeof(probe));
+        dbgDax("UDP: probe enviado a " + radioIP_ + ":" + std::to_string(udpPort_));
+    }
 
     std::vector<uint8_t> pkt(MAX_UDP_PACKET);
     bool firstPacket = true;

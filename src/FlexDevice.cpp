@@ -253,7 +253,7 @@ int FlexDevice::activateStream(SoapySDR::Stream* stream,
 
         // Arrancar receptor UDP primero
         dbg("Arrancando DAX receiver en puerto " + std::to_string(udpPort_));
-        daxReceiver_->start(udpPort_, "DAX IQ RX 1");
+        daxReceiver_->start(udpPort_, radioIP_);
         dbg("DAX receiver OK en puerto " + std::to_string(udpPort_));
 
         // Secuencia completa de flexlib-go con rate correcto

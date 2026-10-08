@@ -22,7 +22,8 @@ public:
     ~DaxIQReceiver();
 
     // udpPort: puerto UDP donde el radio enviará los paquetes VITA-49
-    void start(uint16_t udpPort, const std::string& unused = "");
+    // radioIP:  IP del radio — se usa para enviar un probe UDP que abre el camino de vuelta
+    void start(uint16_t udpPort, const std::string& radioIP = "");
     void stop();
 
     bool isRunning() const { return running_.load(); }
@@ -38,6 +39,7 @@ private:
     void captureLoop();
 
     uint16_t                  udpPort_{ 7891 };
+    std::string               radioIP_;
     std::atomic<bool>         running_{ false };
     std::thread               captureThread_;
 

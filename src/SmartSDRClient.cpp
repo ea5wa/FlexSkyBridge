@@ -148,7 +148,23 @@ void SmartSDRClient::startDaxIQStream(int channel,
     if (!firstClientId_.empty())
         sendCommand("client bind client_id=" + firstClientId_);
 
-    // 2. Registrar nuestro puerto UDP
+    // 2. Obtener IP local del socket TCP (funciona con VPN/NAT)
+    {
+        sockaddr_in localAddr{};
+        int addrLen = sizeof(localAddr);
+        SOCKET s = static_cast<SOCKET>(sock_);
+        if (getsockname(s, reinterpret_cast<sockaddr*>(&localAddr), &addrLen) == 0) {
+            char ipBuf[INET_ADDRSTRLEN] = {};
+            inet_ntop(AF_INET, &localAddr.sin_addr, ipBuf, sizeof(ipBuf));
+            std::string localIP(ipBuf);
+            dbgSdr("client ip enviado: " + localIP);
+            sendCommand("client ip " + localIP);
+        } else {
+            dbgSdr("WARN: getsockname falló, omitiendo client ip");
+        }
+    }
+
+    // 3. Registrar nuestro puerto UDP
     sendCommand("client udpport " + std::to_string(udpPort));
 
     // 3. Eliminar stream preexistente en este canal (evita estado "Busy")
